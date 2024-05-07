@@ -1,0 +1,48 @@
+{
+  "name": "simple-token-example",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "deploy:token": "npx hardhat clean && npx hardhat run ./scripts/1_deploy_gamesfi_token_contract.js --network ",
+    "deploy:nft": "npx hardhat clean && npx hardhat run ./scripts/2_deploy_gamesfi_nft_contract.js --network ",
+    "deploy:erc1155": "npx hardhat clean && npx hardhat run ./scripts/3_deploy_gamesfi_multi_assets_contract.js --network ",
+    "deploy:lottery": "npx hardhat clean && npx hardhat run ./scripts/4_deploy_gamesfi_lottery_contract.js --network ",
+    "deploy:prediction": "npx hardhat clean && npx hardhat run ./scripts/5_deploy_gamesfi_prediction_contract.js --network ",
+    "test": "npx hardhat test",
+    "coverage": "npx hardhat coverage"
+  },
+  "devDependencies": {
+    "@ethersproject/abi": "^5.4.7",
+    "@ethersproject/providers": "^5.4.7",
+    "@nomicfoundation/hardhat-chai-matchers": "^1.0.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.0",
+    "@nomicfoundation/hardhat-toolbox": "^2.0.0",
+    "@nomiclabs/hardhat-ethers": "^2.0.0",
+    "@nomiclabs/hardhat-etherscan": "^3.1.7",
+    "@nomiclabs/hardhat-truffle5": "^2.0.7",
+    "@nomiclabs/hardhat-waffle": "^2.0.6",
+    "@nomiclabs/hardhat-web3": "^2.0.0",
+    "@openzeppelin/contracts": "^4.8.3",
+    "@openzeppelin/hardhat-upgrades": "^1.22.1",
+    "@typechain/ethers-v5": "^10.1.0",
+    "@typechain/hardhat": "^6.1.2",
+    "@types/chai": "^4.2.0",
+    "@types/mocha": ">=9.1.0",
+    "@types/node": ">=12.0.0",
+    "chai": "^4.2.0",
+    "ethers": "^5.4.7",
+    "hardhat": "^2.12.7",
+    "hardhat-gas-reporter": "^1.0.8",
+    "solhint": "^3.4.1",
+    "solidity-coverage": "^0.8.0",
+    "ts-node": ">=8.0.0",
+    "typechain": "^8.1.0",
+    "typescript": ">=4.5.0",
+    "web3": "^1.0.0-beta.36"
+  },
+  "dependencies": {
+    "@openzeppelin/test-helpers": "^0.5.11",
+    "@pythnetwork/pyth-evm-js": "^1.46.0",
+    "@pythnetwork/pyth-sdk-solidity": "^3.1.0",
+    "dotenv": "^16.3.2"
+  }
+}

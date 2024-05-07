@@ -1,0 +1,12 @@
+module.exports = {
+  "bttc_testnet": {
+    mnemonic: "", // could be either private key or mnemonic
+    rpc: "",
+    pythAddress: "",
+  },
+  bttc_mainnet: {
+    mnemonic: "", // could be either private key or mnemonic
+    rpc: "",
+    pythAddress: ""
+  }
+};
