@@ -28,7 +28,6 @@ contract GamesFiPrediction is Ownable, Pausable, ReentrancyGuard {
     address public adminAddress; // address of the admin
     address public operatorAddress; // address of the operator
 
-    uint256 public bufferSeconds; // number of seconds for valid execution of a prediction round
     uint256 public intervalSeconds; // interval in seconds between two prediction rounds
 
     uint256 public minBetAmount; // minimum betting amount (denominated in wei)
@@ -81,7 +80,7 @@ contract GamesFiPrediction is Ownable, Pausable, ReentrancyGuard {
     event LockRound(uint256 indexed epoch, uint256 indexed roundId, int256 price);
 
     event NewAdminAddress(address admin);
-    event NewBufferAndIntervalSeconds(uint256 bufferSeconds, uint256 intervalSeconds);
+    event NewIntervalSeconds(uint256 intervalSeconds);
     event NewMinBetAmount(uint256 indexed epoch, uint256 minBetAmount);
     event NewTreasuryFee(uint256 indexed epoch, uint256 treasuryFee);
     event NewOperatorAddress(address operator);
@@ -130,7 +129,6 @@ contract GamesFiPrediction is Ownable, Pausable, ReentrancyGuard {
      * @param _adminAddress: admin address
      * @param _operatorAddress: operator address
      * @param _intervalSeconds: number of time within an interval
-     * @param _bufferSeconds: buffer of time for resolution of price
      * @param _minBetAmount: minimum bet amounts (in wei)
      * @param _oracleUpdateAllowance: oracle update allowance
      * @param _treasuryFee: treasury fee (1000 = 10%)
@@ -142,7 +140,6 @@ contract GamesFiPrediction is Ownable, Pausable, ReentrancyGuard {
         address _adminAddress,
         address _operatorAddress,
         uint256 _intervalSeconds,
-        uint256 _bufferSeconds,
         uint256 _minBetAmount,
         uint256 _oracleUpdateAllowance,
         uint256 _treasuryFee,
@@ -155,7 +152,6 @@ contract GamesFiPrediction is Ownable, Pausable, ReentrancyGuard {
         adminAddress = _adminAddress;
         operatorAddress = _operatorAddress;
         intervalSeconds = _intervalSeconds;
-        bufferSeconds = _bufferSeconds;
         minBetAmount = _minBetAmount;
         oracleUpdateAllowance = _oracleUpdateAllowance;
         treasuryFee = _treasuryFee;
@@ -353,16 +349,14 @@ contract GamesFiPrediction is Ownable, Pausable, ReentrancyGuard {
      * @notice Set buffer and interval (in seconds)
      * @dev Callable by admin
      */
-    function setBufferAndIntervalSeconds(uint256 _bufferSeconds, uint256 _intervalSeconds)
+    function setIntervalSeconds( uint256 _intervalSeconds)
         external
         whenPaused
         onlyAdmin
     {
-        require(_bufferSeconds < _intervalSeconds, "bufferSeconds must be inferior to intervalSeconds");
-        bufferSeconds = _bufferSeconds;
         intervalSeconds = _intervalSeconds;
 
-        emit NewBufferAndIntervalSeconds(_bufferSeconds, _intervalSeconds);
+        emit NewIntervalSeconds(_intervalSeconds);
     }
 
     /**
@@ -518,7 +512,7 @@ contract GamesFiPrediction is Ownable, Pausable, ReentrancyGuard {
         return
             !round.oracleCalled &&
             !betInfo.claimed &&
-            block.timestamp > round.closeTimestamp + bufferSeconds &&
+            block.timestamp > round.closeTimestamp &&
             betInfo.amount != 0;
     }
 
@@ -573,10 +567,6 @@ contract GamesFiPrediction is Ownable, Pausable, ReentrancyGuard {
     ) internal {
         require(rounds[epoch].lockTimestamp != 0, "Can only end round after round has locked");
         require(block.timestamp >= rounds[epoch].closeTimestamp, "Can only end round after closeTimestamp");
-        require(
-            block.timestamp <= rounds[epoch].closeTimestamp + bufferSeconds,
-            "Can only end round within bufferSeconds"
-        );
         Round storage round = rounds[epoch];
         round.closePrice = price;
         round.closeOracleId = roundId;
@@ -598,10 +588,6 @@ contract GamesFiPrediction is Ownable, Pausable, ReentrancyGuard {
     ) internal {
         require(rounds[epoch].startTimestamp != 0, "Can only lock round after round has started");
         require(block.timestamp >= rounds[epoch].lockTimestamp, "Can only lock round after lockTimestamp");
-        require(
-            block.timestamp <= rounds[epoch].lockTimestamp + bufferSeconds,
-            "Can only lock round within bufferSeconds"
-        );
         Round storage round = rounds[epoch];
         round.closeTimestamp = block.timestamp + intervalSeconds;
         round.lockPrice = price;
@@ -667,7 +653,7 @@ contract GamesFiPrediction is Ownable, Pausable, ReentrancyGuard {
         uint256 leastAllowedTimestamp = block.timestamp + oracleUpdateAllowance;
 
 		// Get price from pyth
-		PythStructs.Price memory priceObject = oracle.getPrice(priceId);
+		PythStructs.Price memory priceObject = oracle.getPriceUnsafe(priceId);
 		int256 price = int256(priceObject.price);
 		uint256 timestamp = priceObject.publishTime;
 		uint80 roundId = uint80(priceObject.publishTime);

@@ -1,5 +1,8 @@
 {
   "name": "simple-token-example",
+  "version": "0.1.0",
+  "description": "GamesFi Contracts",
+  "license": "MIT",
   "scripts": {
     "compile": "npx hardhat compile",
     "deploy:token": "npx hardhat clean && npx hardhat run ./scripts/1_deploy_gamesfi_token_contract.js --network ",
